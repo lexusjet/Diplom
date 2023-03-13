@@ -10,3 +10,5 @@ def fastPrint(arr):
     x = range(len(arr))
     graph = plot.plot(x, arr)
     plot.show()
+    
+    

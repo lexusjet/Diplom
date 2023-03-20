@@ -1,5 +1,7 @@
 import getDetectorMatrix
 import lexus_utility as lexus
+import MonochoramtorLogClass as mlc
+import Methods as methods
 
 import matplotlib.pyplot as plt  
 import numpy as np
@@ -12,43 +14,67 @@ import os.path
 n = 0
 k = 0
 
+t = 1
+test1 = [0,105,107,107,117]
+test2 = [256,135,129,118,129]
+# horisontal borders
+hb1 = test1[t]
+hb2 = test2[t]
+# vertical borders
+htest1 = [0,10,50,100,120]
+htest2 = [256,246,206,156,136]
+t = 0
+vb1 = htest1[t]
+vb2 = htest2[t]
+
+fig, axs = plt.subplots(nrows= 3 , ncols= 1 )
+fig. suptitle('Сравнение двух методов (слева новый, справа старый)\n  в границах  [{}:{},  {}:{}]'.format(vb1,vb2,hb1, hb2))
+
+index = 0
 
 
-# g = plt.GridSpec(18,2)
-# fig = plt.figure()
-
-path = os.path.join("spectrs_{}", "{}_Event.txt")
 
 
-while(os.path.exists(path.format(n, k))):
-    arr = []
-    while(os.path.exists(path.format(n, k))):
-        mass =  np.array(getDetectorMatrix.getDetectorMatrix(path.format(n,k)))
-        arr.append(reduce(lambda a, b : a + b , mass[:256, 100:143]))
+path ="spectrs_{}"
+spectreFileName = "{}_Event.txt"
+spectreFileName = "{}_iToT.txt"
+logFileName = "Log_{}.txt"
+
+
+arr = []
+
+while(os.path.exists(path.format(n))):
+    method_firs_anser = []
+    integral_method_anser = []
+    pathFileName = os.path.join(path.format(n), spectreFileName)
+    
+    while(os.path.exists(pathFileName.format(k))):      
+        mass =  np.array(getDetectorMatrix.getDetectorMatrix(pathFileName.format(k)))
+        mass = mass[vb1:vb2, hb1:hb2]
+        if(not len(arr) and n ==2 and k == 20): arr = mass[128]
+        integral_method_anser.append(methods.IntegralMethod(mass))
+        method_firs_anser.append(abs(min(methods.method(mass))))
+        
         k = k + 1
+
         
-        
+    log = mlc.MonochoramtorLog(os.path.join(path.format(n), logFileName.format(n)))
+    xValues = list(map(lambda x: x/4700 ,range(log.engineStart, log.engineStop+log.engineStep, log.engineStep)))      
     
-    # s = fig.add_subplot(g[(n*5):(n*5+5),0])
-    # s.plot(range(len(arr)), list(map(sum,arr)))
-    # s.set_title(path.split("\\")[0].format(n))
-    # s = fig.add_subplot(g[(n*5):(n*5+5),1], projection='3d') 
-   
-    fig = plt.figure()
-    s = Axes3D(fig)
-   
-    X = range(len(arr[0]))
-    Y = range(len(arr))    
-    X,Y = np.meshgrid(X,Y)
-    s.plot_surface(X, Y, np.array(arr), rstride=1, cstride=1, cmap=plt.cm.hot)
-    s.set_title(path.split("\\")[0].format(n))
-    
-    n += 1
+
+    # axs[n].plot(xValues, integral_method_anser)   
+    axs[n].plot(xValues, method_firs_anser)
+    axs.ravel()[index].set_title(pathFileName.split("\\")[0].format(n))
+    index +=1
+    # axs.ravel()[index].set_title(pathFileName.split("\\")[0].format(n))
+    # index +=1
+
+         
+    n += 1    
     k = 0
+    
+fig.tight_layout()
 
-
-
-plt.show()
 
 
 

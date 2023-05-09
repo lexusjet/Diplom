@@ -5,19 +5,35 @@ Created on Sun Mar 19 17:52:36 2023
 @author: lexus
 """
 import re as regexp
+import os.path
+import json
 
 class MonochoramtorLog():
-    def __init__(self, pathToLog):
+    def __init__(self):
+        self.date = None 
+        self.angleStart = None 
+        self.angleStop = None 
+        self.angleStep = None 
+        self.engineStart = None 
+        self.engineStop = None 
+        self.engineStep = None 
+        
+        
+        
+    def loadFromJson(self,pathToLog):
         file = open(pathToLog, 'r')
-        data = file.read()
-        regexp1 = regexp.findall(r"(date|start|stop|step)=([^>;]*)", data)
-        self.date = regexp1[0][1]
-        self.angleStart = float(regexp1[1][1])
-        self.angleStop = float(regexp1[2][1])
-        self.angleStep = float(regexp1[3][1])
-        self.engineStart = int(regexp1[4][1])
-        self.engineStop = int(regexp1[5][1])
-        self.engineStep = int(regexp1[6][1])
+        data = json.load(file)
+        self.date = data["date"]
+        self.angleStart = float(data["angleStart"])
+        self.angleStop = float(data["angleStop"])
+        self.angleStep = float(data["angleStep"])
+        self.engineStart = int(data["engineStart"])
+        self.engineStop = int(data["engineStop"])
+        self.engineStep = int(data["engineStep"])
         file.close()
+        
+    def serialiseToJson(self , path):
+        file =  open(path, "w+")
+        json.dump(self.__dict__,file)
     
         

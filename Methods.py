@@ -24,8 +24,7 @@ def linreg(X, Y):
 
 
 def method(mass):
-    array = np.sum(mass, 0)
-    array = array.dot(1/len(mass))
+    array = mass
     anser = []
     
     xValues = range(0,3)
@@ -37,9 +36,13 @@ def method(mass):
 
 
 def IntegralMethod(mass):
-    anser = []
-    anser = np.sum(mass, 0)
-    anser = np.sum(anser)
-
+    anser = sum(mass)
     return anser
     
+
+     
+def parabolicApproximation(xValues , yValues):
+    anser = np.polyfit(xValues, yValues, 2)
+    xMax = -(anser[1]/(2*anser[0]))
+    yMax = anser[2] + anser[1]*xMax + anser[0]*pow(xMax,2)
+    return yMax

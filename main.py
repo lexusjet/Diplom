@@ -9,70 +9,54 @@ from functools import reduce
 from mpl_toolkits.mplot3d import Axes3D
 import os.path
 
-   
 
-n = 0
-k = 0
-
-t = 1
-test1 = [0,105,107,107,117]
-test2 = [256,135,129,118,129]
 # horisontal borders
-hb1 = test1[t]
-hb2 = test2[t]
+hb1, hb2 = 100,150
 # vertical borders
-htest1 = [0,10,50,100,120]
-htest2 = [256,246,206,156,136]
-t = 0
-vb1 = htest1[t]
-vb2 = htest2[t]
-
-fig, axs = plt.subplots(nrows= 3 , ncols= 1 )
-fig. suptitle('Сравнение двух методов (слева новый, справа старый)\n  в границах  [{}:{},  {}:{}]'.format(vb1,vb2,hb1, hb2))
-
-index = 0
-
-
+vb1, vb2  = 0,256
 
 
 path ="spectrs_{}"
 spectreFileName = "{}_Event.txt"
-spectreFileName = "{}_iToT.txt"
-logFileName = "Log_{}.txt"
 
-
-arr = []
-
+ansers = {0: [], 1: []}
+n = 0
 while(os.path.exists(path.format(n))):
+    k = 0
     method_firs_anser = []
     integral_method_anser = []
     pathFileName = os.path.join(path.format(n), spectreFileName)
     
     while(os.path.exists(pathFileName.format(k))):      
         mass =  np.array(getDetectorMatrix.getDetectorMatrix(pathFileName.format(k)))
+        mass = getDetectorMatrix.spectrumPreparation(mass)
         mass = mass[vb1:vb2, hb1:hb2]
-        if(not len(arr) and n ==2 and k == 20): arr = mass[128]
+        mass = np.sum(mass,0).dot(1/len(mass))
         integral_method_anser.append(methods.IntegralMethod(mass))
         method_firs_anser.append(abs(min(methods.method(mass))))
         
         k = k + 1
-
         
-    log = mlc.MonochoramtorLog(os.path.join(path.format(n), logFileName.format(n)))
-    xValues = list(map(lambda x: x/4700 ,range(log.engineStart, log.engineStop+log.engineStep, log.engineStep)))      
-    
-
-    # axs[n].plot(xValues, integral_method_anser)   
-    axs[n].plot(xValues, method_firs_anser)
-    axs.ravel()[index].set_title(pathFileName.split("\\")[0].format(n))
-    index +=1
-    # axs.ravel()[index].set_title(pathFileName.split("\\")[0].format(n))
-    # index +=1
-
-         
+    ansers[0].append(integral_method_anser)
+    ansers[1].append(method_firs_anser)
+     
     n += 1    
-    k = 0
-    
+ 
+  
+  
+logFileName = "Log_{}.json"
+fig, axs = plt.subplots(nrows= len(ansers[0]) , ncols= len(ansers))
+fig. suptitle('Новый и старый \n  в границах  [{}:{},  {}:{}]'.format(vb1,vb2,hb1, hb2))   
+index = 0
+for i in range(len(ansers[0])):
+    for j in range(len(ansers)):
+        log = mlc.MonochoramtorLog()
+        log.loadFromJson(os.path.join(path.format(i), logFileName.format(i)))
+        xValues = list(map(lambda x: x/4700 ,range(log.engineStart, log.engineStop+log.engineStep, log.engineStep)))
+        axs[i,j].plot(xValues, ansers[j][i])
+        axs.ravel()[index].set_title(path.format(i))
+        index += 1
+
 fig.tight_layout()
 
 

@@ -1,30 +1,31 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from statistics import mean
 
 def getDetectorMatrix(fileName):
     file = open(fileName)
     matrix = np.loadtxt(file)
     file.close()
     return matrix
+                   
+                   
+def spectrumPreparation(mass):
+    mass = mass.transpose()
+    dispersions = list(map(np.var, mass))
+    sigmas = list(map(lambda x : pow(x, 0.5), dispersions))
 
-def broken_pixel_data_rstr(mass):
-
-   for i in range(len(mass)):
-       
-       for j in range(len(mass[i])):
-           if(mass[i][j] == 0):
-               average = 0
-               for sting in range(len(mass)):
-                   average = average + mass[sting][j]
-
-               if(average > (256*10)):
-
-                   if((i < 1) or (i ==(len(mass) -1)) ): 
-                       mass[i][j] = average/256
-                       break
-                   x1 = i -1
-                   x2 = i+1
-                   x = i
-                   y1 = mass[x1][j]
-                   y2 = mass[x2][j]
-                   mass[i][j] = y1 + ((y2 - y1) * (x - x1))/(x2 - x1)
+    for i in range(len(mass)):
+        j = 0
+        mn = mean(mass[i])
+        sigma = sigmas[i]
+        while j < len(mass[i]):
+            if(mass[i][j] > mn + sigma * 3 or mass[i][j] < mn - sigma * 3):
+                mass = np.delete(mass, j, axis = 1)
+            j += 1
+    
+    
+    dispersions = list(map(np.var, mass))
+    sigmas = list(map(lambda x : pow(x, 0.5), dispersions))
+    mass = mass.transpose()
+    
+    return mass

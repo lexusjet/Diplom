@@ -8,7 +8,7 @@ import re as regexp
 import os.path
 import json
 
-class MonochoramtorLog():
+class MonochoramtorConfig():
     def __init__(self):
         self.date = None 
         self.angleStart = None 

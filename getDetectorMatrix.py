@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from statistics import mean
-
-def getDetectorMatrix(fileName):
-    file = open(fileName)
-    matrix = np.loadtxt(file)
-    file.close()
-    return matrix
-                   
-                   
-def spectrumPreparation(mass):
+                               
+def spectrum_preparation(mass):
     mass = mass.transpose()
     dispersions = list(map(np.var, mass))
     sigmas = list(map(lambda x : pow(x, 0.5), dispersions))

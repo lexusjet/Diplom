@@ -35,7 +35,7 @@ def method(mass):
 
 
 
-def IntegralMethod(mass):
+def integral_method(mass):
     anser = sum(mass)
     return anser
     
